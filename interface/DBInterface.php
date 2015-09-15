@@ -70,7 +70,10 @@
 			const AUTH_USER 					= "SELECT * FROM usuarios WHERE idUsuario = :id"; 
 			const AUTH_USEDPOINTS				= "SELECT SUM(dblTotal) as total FROM compra WHERE idUsuario = :id ";
 			const AUTH_USERADMIN 				= "SELECT * FROM personal WHERE id = :id";
-			
+			const AUTH_DEFINE_USER				= "SELECT IF(usr.strEmail = :mail , true, false) as isUser, IF(per.login = :mail, true, false) as isAdmin FROM usuarios as usr , personal as per WHERE usr.strEmail = :mail OR per.login = :mail LIMIT 1";
+			const AUTH_LOGIN_USER_ADMIN 		= "SELECT * FROM personal WHERE login = :user AND password = :pass ";
+			const AUTH_LOGIN_USER 				= "SELECT * FROM usuarios WHERE strEmail = :user AND strPassword = :pass ";
+
 			/**
 			* @param class TempMaxCompra
 			*/

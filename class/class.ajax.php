@@ -144,6 +144,34 @@
 
 		}
 
+		private static function loginNufarm(){
+			
+			$params = new stdClass();
+			$params->{'user'} = self::post('user');
+			$params->{'pass'} = self::post('pass');
+			$auth = new Auth();
+			$response = $auth->login($params);
+			if($response):
+				echo(json_encode($response));
+			else:
+				echo(json_encode(array('error' => true )));
+			endif;
+
+		}
+
+		private static function checkAllLogged(){
+			$logAdmin = Auth::idAdmin();
+			$logUser = Auth::id();
+
+			if($logAdmin):
+				echo json_encode(Auth::userAdmin());
+			elseif($logUser):
+				echo json_encode(Auth::User());
+			else:
+				echo('false');
+			endif;
+		}
+
 
 
 		private static function post($name){

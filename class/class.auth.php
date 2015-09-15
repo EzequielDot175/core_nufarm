@@ -57,12 +57,12 @@ ob_start();
 		public static function idAdmin(){
 			self::startSession();
 
-			return (int)$_SESSION['logged_id'];
+			return ( isset($_SESSION['logged_id']) ? (int)$_SESSION['logged_id'] : false );
 		}
 
 		public static function id(){
 			self::start();
-			return (int)$_SESSION['MM_IdUsuario'];
+			return ( isset($_SESSION['MM_IdUsuario']) ? (int)$_SESSION['MM_IdUsuario'] : false);
 		}
 
 
@@ -90,6 +90,77 @@ ob_start();
 			return $sel->fetch()->total;
 		}
 
+		public function login(stdClass $params){
+			self::destroy();
+			$user = $params->user;
+
+			$type = $this->defineUser($user);
+			$response = new stdClass();
+
+			if ($type->isAdmin):
+				return $this->authAdmin($params);
+			elseif ($type->isUser):
+				return $this->authUser($params);
+			else:
+				return false;
+			endif;
+
+		}
+
+		public function authAdmin(stdClass $params){
+			@session_start();
+
+			$sel = $this->prepare(self::AUTH_LOGIN_USER_ADMIN);
+			$sel->bindParam(':user', $params->user, PDO::PARAM_STR);
+			$sel->bindParam(':pass', $params->pass, PDO::PARAM_STR);
+			$sel->execute();
+
+			$collection = $sel->fetch();
+			if($collection):
+				$_SESSION['logged_id'] = $collection->id;
+			endif;
+
+			return $collection;			
+			
+		}
+
+		public function authUser(stdClass $params){
+			@session_start();
+
+			$sel = $this->prepare(self::AUTH_LOGIN_USER);
+			$sel->bindParam(':user', $params->user, PDO::PARAM_STR);
+			$sel->bindParam(':pass', $params->pass, PDO::PARAM_STR);
+			$sel->execute();
+
+			$collection = $sel->fetch();
+			if($collection):
+				$_SESSION['MM_IdUsuario'] = $collection->idUsuario;
+			endif;
+
+			return $collection;			
+			
+		}
+
+		public function defineUser($user){
+			$sel = $this->prepare(self::AUTH_DEFINE_USER);
+			$sel->bindParam(':mail', $user, PDO::PARAM_STR);
+			$sel->execute();
+			$result = $sel->fetch();
+
+			if($result):
+				$obj = new stdClass();
+				$obj->{'isUser'}    = (Boolean)$result->isUser;
+				$obj->{'isAdmin'} = (Boolean)$result->isAdmin;
+			else:
+				$obj = new stdClass();
+				$obj->{'isUser'}    = false;
+				$obj->{'isAdmin'} = false;
+				
+			endif;
+
+			return $obj;
+			
+		}
 
 		public static function consumido(){
 			return self::method('puntosConsumidos');
@@ -109,6 +180,9 @@ ob_start();
 			return $date->format('d/m/Y');
 		}
 
+		public static function destroy(){
+			@session_destroy();
+		}
 
 
 	}
