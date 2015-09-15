@@ -110,10 +110,6 @@
 
 		public function authAdmin(stdClass $params){
 			self::startSession();
-<<<<<<< HEAD
-=======
-			
->>>>>>> a1c4140f4e306aec5e38de937f3f1dcf1387a46d
 
 			$sel = $this->prepare(self::AUTH_LOGIN_USER_ADMIN);
 			$sel->bindParam(':user', $params->user, PDO::PARAM_STR);

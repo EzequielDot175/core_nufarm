@@ -168,13 +168,7 @@
 			elseif($logUser):
 				echo json_encode(Auth::User());
 			else:
-<<<<<<< HEAD
-				@session_start();
-				print_r($_SESSION);
-				echo('false');
-=======
 				echo json_encode(array('error' => true));
->>>>>>> a1c4140f4e306aec5e38de937f3f1dcf1387a46d
 			endif;
 		}
 
