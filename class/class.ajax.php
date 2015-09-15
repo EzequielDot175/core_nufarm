@@ -168,6 +168,8 @@
 			elseif($logUser):
 				echo json_encode(Auth::User());
 			else:
+				@session_start();
+				print_r($_SESSION);
 				echo('false');
 			endif;
 		}

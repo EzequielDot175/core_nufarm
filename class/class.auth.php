@@ -1,5 +1,6 @@
 <?php 
-ob_start();
+	ob_start();
+
 	/**
 	* @internal Clase Auth para autenticar la session del usuario
 	*/
@@ -108,7 +109,7 @@ ob_start();
 		}
 
 		public function authAdmin(stdClass $params){
-			@session_start();
+			self::startSession();
 
 			$sel = $this->prepare(self::AUTH_LOGIN_USER_ADMIN);
 			$sel->bindParam(':user', $params->user, PDO::PARAM_STR);
@@ -116,16 +117,17 @@ ob_start();
 			$sel->execute();
 
 			$collection = $sel->fetch();
-			if($collection):
+			if($collection != false):
 				$_SESSION['logged_id'] = $collection->id;
 			endif;
+
 
 			return $collection;			
 			
 		}
 
 		public function authUser(stdClass $params){
-			@session_start();
+			self::startSession();
 
 			$sel = $this->prepare(self::AUTH_LOGIN_USER);
 			$sel->bindParam(':user', $params->user, PDO::PARAM_STR);
@@ -133,9 +135,10 @@ ob_start();
 			$sel->execute();
 
 			$collection = $sel->fetch();
-			if($collection):
+			if($collection != false):
 				$_SESSION['MM_IdUsuario'] = $collection->idUsuario;
 			endif;
+		
 
 			return $collection;			
 			

@@ -23,7 +23,7 @@
 
 
 		public function matchAndReplace(){
-			$whiteSpace = [];
+			$whiteSpace = array();
 			preg_match_all("{{(\w+)}}", $this->html, $matches);
 			$matches = array_pop($matches);
 

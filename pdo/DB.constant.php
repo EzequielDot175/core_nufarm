@@ -27,7 +27,7 @@
 		protected function getAttributes(){
 			$attributes = new ReflectionClass($this);
 	 		$attr = $attributes->getProperties(ReflectionProperty::IS_PUBLIC);
-	 		$props = [];
+	 		$props = array();
 	 		foreach ($attr as $key => $value) {
 	 			if(!empty($this->{$value->name})):
 	 				$props[$value->name] = $this->{$value->name};
