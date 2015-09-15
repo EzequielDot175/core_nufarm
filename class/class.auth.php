@@ -108,7 +108,8 @@ ob_start();
 		}
 
 		public function authAdmin(stdClass $params){
-			@session_start();
+			self::startSession();
+			
 
 			$sel = $this->prepare(self::AUTH_LOGIN_USER_ADMIN);
 			$sel->bindParam(':user', $params->user, PDO::PARAM_STR);
@@ -125,7 +126,7 @@ ob_start();
 		}
 
 		public function authUser(stdClass $params){
-			@session_start();
+			self::startSession();
 
 			$sel = $this->prepare(self::AUTH_LOGIN_USER);
 			$sel->bindParam(':user', $params->user, PDO::PARAM_STR);
@@ -135,6 +136,7 @@ ob_start();
 			$collection = $sel->fetch();
 			if($collection):
 				$_SESSION['MM_IdUsuario'] = $collection->idUsuario;
+				$_SESSION['MM_Username'] = $collection->strEmpresa;
 			endif;
 
 			return $collection;			

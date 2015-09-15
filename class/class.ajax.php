@@ -168,7 +168,7 @@
 			elseif($logUser):
 				echo json_encode(Auth::User());
 			else:
-				echo('false');
+				echo json_encode(array('error' => true));
 			endif;
 		}
 
