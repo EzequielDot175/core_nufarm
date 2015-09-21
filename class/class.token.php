@@ -33,7 +33,7 @@
 				array_shift($_SESSION['tokens']);
 			endif;
 
-			array_push($_SESSION['tokens'], $value);
+			$_SESSION['tokens'][] = $value;
 		}
 
 		public static function generate(){
