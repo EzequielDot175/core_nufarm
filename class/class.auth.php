@@ -189,7 +189,7 @@
 			endif;
 		}
 
-		public function oneTypeUser(){
+		public static function oneTypeUser(){
 			self::startSession();
 			if(isset($_SESSION['MM_IdUsuario']) && isset($_SESSION['logged_id'])):
 				if(empty($_SESSION['MM_IdUsuario'])):
