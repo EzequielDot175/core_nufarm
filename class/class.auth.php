@@ -21,9 +21,7 @@
 		}
 
 		public static function startSession(){
-			if(!isset($_SESSION)):
-				@session_start();				
-			endif;
+			@session_start();				
 		}
 
 		public static function start(){
@@ -166,6 +164,30 @@
 			
 		}
 
+		public static function checkLogin(){
+			self::startSession();
+			$obj = new stdClass();
+			$obj->{'check'} = false;
+			$obj->{'type'}   = "";
+			$obj->{'id'}     = null;
+
+			if(!isset($_SESSION['logged_id']) && isset($_SESSION['MM_IdUsuario'])):
+				$obj->{'check'} = true;
+				$obj->{'type'}   = "usuario";
+				$obj->{'id'}     = $_SESSION['MM_IdUsuario'];
+
+				return $obj;
+			elseif(isset($_SESSION['logged_id']) && !isset($_SESSION['MM_IdUsuario'])):
+				$obj->{'check'} = true;
+				$obj->{'type'}   = "personal";
+				$obj->{'id'}     = $_SESSION['logged_id'];
+
+				return $obj;
+			else:
+				return $obj;
+			endif;
+		}
+
 		public static function consumido(){
 			return self::method('puntosConsumidos');
 		}
@@ -182,6 +204,13 @@
 		public static function BirthDay($dat){
 			$date = new DateTime($dat);
 			return $date->format('d/m/Y');
+		}
+
+		public static function userLogin($user, $pass){
+			$obj = new stdClass();
+			$obj->user = $user;
+			$obj->pass = $pass;
+			return self::method('authUser', $obj);
 		}
 
 		public static function destroy(){

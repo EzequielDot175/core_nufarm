@@ -4,6 +4,7 @@
 	define('APP_DIR', dirname(__FILE__));
 	require_once(APP_DIR.'/class/class.template.php');
 	require_once(APP_DIR.'/class/class.upload.php');
+	require_once(APP_DIR.'/class/class.token.php');
 	require_once(APP_DIR.'/mail/PHPMailerAutoload.php');
 	require_once(APP_DIR.'/excel/PHPExcel.php');
 	require_once(APP_DIR.'/interface/DBInterface.php');
