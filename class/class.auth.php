@@ -164,6 +164,26 @@
 			
 		}
 
+
+		public static function checkLoginAdmin(){
+			self::startSession();
+			$obj = new stdClass();
+			$obj->{'check'} = false;
+			$obj->{'type'}   = "";
+			$obj->{'id'}     = null;
+
+			if(isset($_SESSION['logged_id'])):
+
+				$obj->{'check'} = (!empty($_SESSION['MM_IdUsuario']) ? true : false);
+				$obj->{'type'}   = "usuario";
+				$obj->{'id'}     = $_SESSION['logged_id'];
+
+				return $obj;
+			else:
+				return $obj;
+			endif;
+		}
+
 		public static function checkLogin(){
 			self::startSession();
 			$obj = new stdClass();
@@ -171,18 +191,12 @@
 			$obj->{'type'}   = "";
 			$obj->{'id'}     = null;
 
-			if(!isset($_SESSION['logged_id']) && isset($_SESSION['MM_IdUsuario'])):
+			if(isset($_SESSION['MM_IdUsuario'])):
 
 				$obj->{'check'} = (!empty($_SESSION['MM_IdUsuario']) ? true : false);
 				$obj->{'type'}   = "usuario";
 				$obj->{'id'}     = $_SESSION['MM_IdUsuario'];
-
-				return $obj;
-			elseif(isset($_SESSION['logged_id']) && !isset($_SESSION['MM_IdUsuario'])):
-				$obj->{'check'} = (!empty($_SESSION['logged_id']) ? true : false);
-				$obj->{'type'}   = "personal";
-				$obj->{'id'}     = $_SESSION['logged_id'];
-
+			
 				return $obj;
 			else:
 				return $obj;
