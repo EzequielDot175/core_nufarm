@@ -172,19 +172,35 @@
 			$obj->{'id'}     = null;
 
 			if(!isset($_SESSION['logged_id']) && isset($_SESSION['MM_IdUsuario'])):
-				$obj->{'check'} = true;
+
+				$obj->{'check'} = (!empty($_SESSION['MM_IdUsuario']) ? true : false);
 				$obj->{'type'}   = "usuario";
 				$obj->{'id'}     = $_SESSION['MM_IdUsuario'];
 
 				return $obj;
 			elseif(isset($_SESSION['logged_id']) && !isset($_SESSION['MM_IdUsuario'])):
-				$obj->{'check'} = true;
+				$obj->{'check'} = (!empty($_SESSION['logged_id']) ? true : false);
 				$obj->{'type'}   = "personal";
 				$obj->{'id'}     = $_SESSION['logged_id'];
 
 				return $obj;
 			else:
 				return $obj;
+			endif;
+		}
+
+		public function oneTypeUser(){
+			self::startSession();
+			if(isset($_SESSION['MM_IdUsuario']) && isset($_SESSION['logged_id'])):
+				if(empty($_SESSION['MM_IdUsuario'])):
+					unset($_SESSION['MM_IdUsuario']);
+				elseif(empty($_SESSION['logged_id'])):
+					unset($_SESSION['logged_id']);
+				endif;
+
+				if(empty($_SESSION['MM_IdUsuario']) && $_SESSION['logged_id']):
+					session_destroy();
+				endif;
 			endif;
 		}
 
@@ -211,6 +227,13 @@
 			$obj->user = $user;
 			$obj->pass = $pass;
 			return self::method('authUser', $obj);
+		}
+
+		public static function userLoginAdmin($user, $pass){
+			$obj = new stdClass();
+			$obj->user = $user;
+			$obj->pass = $pass;
+			return self::method('authAdmin', $obj);
 		}
 
 		public static function destroy(){
