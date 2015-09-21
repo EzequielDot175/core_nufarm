@@ -174,8 +174,8 @@
 
 			if(isset($_SESSION['logged_id'])):
 
-				$obj->{'check'} = (!empty($_SESSION['MM_IdUsuario']) ? true : false);
-				$obj->{'type'}   = "usuario";
+				$obj->{'check'} = (!empty($_SESSION['logged_id']) ? true : false);
+				$obj->{'type'}   = "personal";
 				$obj->{'id'}     = $_SESSION['logged_id'];
 
 				return $obj;
