@@ -116,7 +116,8 @@
 
 			$collection = $sel->fetch();
 			if($collection != false):
-				$_SESSION['logged_id'] = $collection->id;
+				session_register('logged_id');
+				$_SESSION["logged_id"] = $collection->id;
 			endif;
 
 
