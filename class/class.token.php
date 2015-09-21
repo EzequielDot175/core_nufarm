@@ -29,7 +29,7 @@
 
 		public static function push($value){
 			self::session();
-			if(count(self::get()) > 0):
+			if(count(self::get()) > 4):
 				array_shift($_SESSION['tokens']);
 			endif;
 
