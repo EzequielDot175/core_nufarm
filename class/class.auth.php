@@ -218,6 +218,8 @@
 			endif;
 		}
 
+		
+
 		public static function consumido(){
 			return self::method('puntosConsumidos');
 		}

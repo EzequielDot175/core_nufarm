@@ -11,9 +11,8 @@
 		}
 
 		private static function session(){
-			if(isset($_SESSION)):
-				@session_start();
-			endif;
+			// @session_start();
+			
 
 			if(!isset($_SESSION['tokens'])):
 				$_SESSION['tokens'] = array();			
@@ -29,16 +28,20 @@
 
 		public static function push($value){
 			self::session();
+
+			$collection = $_SESSION['tokens'];
 			if(count(self::get()) > 4):
-				array_shift($_SESSION['tokens']);
+				array_shift($collection);
 			endif;
 
-			$_SESSION['tokens'][] = $value;
+			$collection[] = $value;
+
+			$_SESSION['tokens'] = $collection;
 		}
 
 		public static function generate(){
 			$string = "random_string";
-			$md5 = crypt(md5($string.rand(1000000,9000000).rand(1000000,9000000)));
+			$md5 = md5($string.rand(1000000,9000000).rand(1000000,9000000));
 			self::push($md5);
 		}
 
