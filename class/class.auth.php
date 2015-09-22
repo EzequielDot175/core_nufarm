@@ -117,6 +117,7 @@
 			$collection = $sel->fetch();
 			if($collection != false):
 				$_SESSION["logged_id"] = $collection->id;
+				$_SESSION["logged_role"] = $collection->role;
 			endif;
 
 
