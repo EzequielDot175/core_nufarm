@@ -39,7 +39,7 @@
 			self::start();
 
 			if(empty($_SESSION["MM_Username"])):
-				@header('location: login.php');
+				@header('location: '.LOGIN_DIR);
 				exit();
 			endif;
 		}

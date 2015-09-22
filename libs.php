@@ -1,4 +1,10 @@
 <?php 
+
+	if($_SERVER['HTTP_HOST'] == "localhost"):
+		define('LOGIN_DIR',  "../loginNufarm");
+	else:
+		define('LOGIN_DIR', "http://".$_SERVER['HTTP_HOST']);
+	endif;
 	// error_reporting(E_ALL);
 	// ini_set('display_errors', 'On');
 	define('APP_DIR', dirname(__FILE__));
