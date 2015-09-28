@@ -348,8 +348,9 @@
 			const USUARIO_EDIT 						 = "UPDATE usuarios :QUERY WHERE idUsuario = :id";
 			const USUARIO_BY_ID 					 = "SELECT * FROM usuarios WHERE idUsuario = :id";
 			const USUARIO_SUM_DBLCONSUMIDO_FROM_SHOP = "UPDATE usuarios SET dblConsumido = dblConsumido + (SELECT SUM(prod.dblPrecio * carr.intCantidad) FROM productos as prod NATURAL JOIN carrito as carr  WHERE idUsuario = :id LIMIT 1) WHERE idUsuario = :id ";
-			
-			
+			const USUARIO_EDIT_PICTURE 				 = "UPDATE usuarios SET logo = :picture WHERE idUsuario = :id";
+			const USUARIO_EDIT_PASSWORD_BY_AUTH		 = "UPDATE usuarios SET strPassword = :password WHERE idUsuario = :id";
+			const USUARIO_EDITSTEP3 				 = "UPDATE usuarios SET actividades = :actividades , equipodefutbol = :equipodefutbol, social = :social, other_activity = :other_activity , deport_pref = :deport_pref WHERE idUsuario = :id";
 			
 			/**
 			* @internal class: Stock

@@ -72,11 +72,17 @@
 		}
 
 		public function edit($collection){
+			if(isset($collection['cumpleanos'])):
+			
 			$collection['cumpleanos'] = self::formatBirthDay($collection);
+			
+			endif;
+
+
 			$query = "UPDATE usuarios ";
 			$i     = 0; 
 			foreach($collection as $key => $val):
-				if(!empty($val)):
+				if($val != ""):
 					if($i == 0):
 						$query .= "SET ".$key." = '".$val."'";
 						$i++;
@@ -87,7 +93,7 @@
 			endforeach;
 			$query .= " WHERE idUsuario = :id";
 
-			
+		
 			$id = Auth::id();
 			$upd = $this->prepare($query);
 			$upd->bindParam(':id', $id, PDO::PARAM_INT);
@@ -97,8 +103,43 @@
 			} catch (Exception $e) {
 				$this->error = "Error al actualizar el usuario";
 			}
+			return ($upd->rowCount() > 0 ? true : false);
 		}
 
+		/**
+		 * Modify actividades, equipodefutbol, social, other_activity, deport_pref
+		 */
+		public function editStep3($data){
+			$id =  Auth::id();
+			$upd = $this->prepare(self::USUARIO_EDITSTEP3);
+			$upd->bindParam(':actividades', $data['actividades'], PDO::PARAM_STR);
+			$upd->bindParam(':equipodefutbol', $data['equipodefutbol'], PDO::PARAM_STR);
+			$upd->bindParam(':social', $data['social'], PDO::PARAM_STR);
+			$upd->bindParam(':other_activity', $data['other_activity'], PDO::PARAM_STR);
+			$upd->bindParam(':deport_pref', $data['deport_pref'], PDO::PARAM_STR);
+			$upd->bindParam(':id', $id, PDO::PARAM_STR);
+			$upd->execute();
+			print_r($upd->rowCount());
+		}
+
+		public function editAuthPassword($password){
+			$id = Auth::id();
+			$upd = $this->prepare(self::USUARIO_EDIT_PASSWORD_BY_AUTH);
+			$upd->bindParam(':id', $id , PDO::PARAM_STR);
+			$upd->bindParam(':password', $password , PDO::PARAM_STR);
+			$upd->execute();
+
+			return ($upd->rowCount() > 0 ? true : false);
+		}
+
+		public function editPicture($id, $picture){
+
+			$upd = $this->prepare(self::USUARIO_EDIT_PICTURE);
+			$upd->bindParam(':id', $id, PDO::PARAM_INT);
+			$upd->bindParam(':picture', $picture, PDO::PARAM_STR);
+			$upd->execute();
+			return ($upd->rowCount() > 0 ? true : false );
+		}
 
 		public function updateDblConsumido(){
 			$id = Auth::id();

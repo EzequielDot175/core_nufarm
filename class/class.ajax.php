@@ -83,10 +83,63 @@
 			// print_r($collection);
 		}
 
+		private static function editDataAuth(){
+			$params = (Object)self::post('data');
+
+			$format = array();
+			$format['strCargo'] = $params->appointment;
+			$format['telefono'] = $params->cellphone;
+			$format['cumpleanos'] = $params->birthday;
+			$format['compania'] = $params->company;
+			$format['strNombre'] = $params->name;
+			$format['strApellido'] = $params->lastName;
+			$format['direccion'] = $params->companyAdress;
+			$format['estadocivil'] = $params->civilStatus;
+			$format['sms'] = ($params->sms ? '1' : '0');
+
+			$usuario = new usuario();
+
+			$result = ($usuario->edit($format) ? 'true' : 'false');
+			echo($result);
+		}
+		
+		private static function editPassword(){
+			$user = new usuario();
+			$password = self::post('password');
+			$result = $user->editAuthPassword($password);
+
+			echo ($result ? 'true' : 'false');
+		}
+
+		private static function AuthUser(){
+			echo json_encode(Auth::User());
+		}
+
 		public static function totalByPeriod(){
 			$ve = new VendedorEstrella();
 			echo json_encode( $ve->getTotales(self::post('date')) );
 
+		}
+
+		private static function editAuth(){
+			$user = self::post('data');
+			$format = array();
+			$format['strEmpresa']  = $user['company'];
+			$format['domicilio_entrega']   = $user['direction'];
+			$format['ciudad']      = $user['city'];
+			$format['cp']          = $user['cod'];
+			$format['telefono']    = $user['phone'];
+			$format['provincia']   = $user['province'];
+
+			$usuario = new usuario();
+			$result = $usuario->edit($format);
+			echo ($result ? 1 : 0);
+		}
+
+		private static function uploadLogo(){
+			print_r($_POST);
+			// print_r($_FILES);
+			echo("end");
 		}
 
 		private static function myData(){
@@ -104,6 +157,30 @@
 		private static function User(){
 			$user = Auth::userAdmin();
 			print_r($user);
+		}
+
+		private static function editStep3(){
+			$data = self::post('data');
+			$usuario = new Usuario();
+			$usuario->editStep3($data);
+		}
+
+		private static function editStep4(){
+
+			$company = self::post('company');
+			$sellers = json_encode(self::post('sellers'));
+			$format = array();
+			$format['strEmpresa'] = $company['company'];
+			$format['dir_empresa'] = $company['direction'];
+			$format['ciudad_empresa'] = $company['city'];
+			$format['cp_entrega'] = $company['cp'];
+			$format['tel_empresa'] = $company['phone'];
+			$format['prov_empresa'] = $company['province'];
+			$format['vendedores'] = $sellers;
+
+			$usuario = new Usuario();
+			$response = $usuario->edit($format);
+			echo ($response ? 'true' : 'false');
 		}
 
 		private static function getByCliente(){
