@@ -85,6 +85,11 @@
 			endif;
 		}
 
+		public static function formatCurrentPeriod($init, $final){
+			$dInit = new DateTime($init);
+			$dFinal = new DateTime($final);
+			return $dInit->format('Y')."/".$dFinal->format('Y');
+		}
 		public function updateFacturacion($data,$id){
 			// print_r($data);
 			$std = new stdClass();
@@ -168,6 +173,18 @@
 
 		}
 
+		public function prevPeriod($id = null){
+			$id = ( is_null($id) ? Auth::id() : $id);
+			$periodos = $this->periodosReales();
+			$last = array_pop($periodos);
+			$sel = $this->prepare(self::VE_GET_PREV_PERIOD);
+			$sel->bindParam(':id', $id, PDO::PARAM_INT);
+			$sel->bindParam(':init', $last->inicio, PDO::PARAM_STR);
+			$sel->execute();
+			return $sel->fetch();
+		}
+
+
 		public function allVe($date){
 			if($this->checkClosedPeriod($date)):
 				$date = explode("_", $date);
@@ -232,6 +249,7 @@
 			$ins->bindParam(':end',$fin,PDO::PARAM_STR);
 
 			$ins->execute();
+
 		}
 
 		public function periodos(){

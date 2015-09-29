@@ -606,7 +606,8 @@
 			const VE_CATPREMIOS             = "SELECT * FROM categorias_premios";
 			const VE_USERFACTURACION        = "SELECT usr.idUsuario, fact.id_user, usr.vendedor  FROM `usuarios` as usr LEFT JOIN facturacion as fact ON fact.id_user = usr.idUsuario WHERE usr.vendedor = :id";
 			const VE_ALL_USERFACTURACION    = "SELECT usr.idUsuario, fact.id_user, usr.vendedor  FROM `usuarios` as usr LEFT JOIN facturacion as fact ON fact.id_user = usr.idUsuario ";
-			const VE_INS_FACT_INCIAL        = "INSERT INTO facturacion (id_user,id_vendedor,data,fact_total,fact_prod_clave,periodo_inicial,periodo_final) VALUES (:id,:vendedor, :data, 0, 0, :start, :end)"; 
+			const VE_INS_FACT_INCIAL        = "INSERT INTO facturacion (id_user,id_vendedor,data,fact_total,fact_prod_clave,periodo_inicial,periodo_final) VALUES (:id,:vendedor, :data, 0, 0, :start, :end)";
+			const VE_GET_PREV_PERIOD 		= "SELECT * FROM ve_registro_anual WHERE id_cliente = :id AND fecha_inicio = :init ";
 			const VE_CLIENTFACTBYID         = "SELECT
 													fact.id,
 													fact.data as facturacion,

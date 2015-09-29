@@ -169,55 +169,7 @@
 		public function authUser(stdClass $params){
 			self::startSession();
 
-			// $format = array();
-			// $ids = array();
-			// $all = "SELECT * FROM usuarios";
-			// $sel = $this->query($all)->fetchAll();
-
 			
-
-			// foreach($sel as $key => $val):
-			// 	$item = array();
-			// 	foreach($val as $itemkey => $itemval):
-					
-			// 		if(!in_array($val->idUsuario,$ids)):
-			// 			$ids[] 			= $val->idUsuario;
-			// 		endif;
-					
-			// 		if($itemkey != 'idUsuario'):
-			// 			$item[$itemkey] = trim($itemval); 
-			// 		endif;
-				
-			// 	endforeach;
-
-			// 	array_push($format, $item);
-			// endforeach;
-
-			// $i = 0;
-			// $querys = array();
-			// foreach($format as $key => $val):
-			// 	$sql = " UPDATE usuarios ";
-			// 	$index = 0;
-
-			// 	foreach($val as $itemkey => $itemval):
-					
-			// 		if($index == 0):
-			// 			$sql .= " SET ".$itemkey." = '".$itemval."'";
-			// 			$index++;
-			// 		else:
-			// 			$sql .= " , ".$itemkey." = '".$itemval."'";
-			// 		endif;
-			
-			// 	endforeach;
-			// 	$sql .= " WHERE idUsuario = ".$ids[$i];
-			// 	$i++;
-			// 	$querys[] = $sql;
-			// endforeach;
-
-
-			// foreach($querys as $key => $val):
-			// 	$this->query($val);
-			// endforeach;
 
 			$sel = $this->prepare(self::AUTH_LOGIN_USER);
 			$sel->bindParam(':user', $params->user, PDO::PARAM_STR);
@@ -234,6 +186,58 @@
 
 			return $collection;			
 			
+		}
+
+		public function limpiarCagadaDeLucho(){
+			$format = array();
+			$ids = array();
+			$all = "SELECT * FROM usuarios";
+			$sel = $this->query($all)->fetchAll();
+
+			
+
+			foreach($sel as $key => $val):
+				$item = array();
+				foreach($val as $itemkey => $itemval):
+					
+					if(!in_array($val->idUsuario,$ids)):
+						$ids[] 			= $val->idUsuario;
+					endif;
+					
+					if($itemkey != 'idUsuario'):
+						$item[$itemkey] = trim($itemval); 
+					endif;
+				
+				endforeach;
+
+				array_push($format, $item);
+			endforeach;
+
+			$i = 0;
+			$querys = array();
+			foreach($format as $key => $val):
+				$sql = " UPDATE usuarios ";
+				$index = 0;
+
+				foreach($val as $itemkey => $itemval):
+					
+					if($index == 0):
+						$sql .= " SET ".$itemkey." = '".$itemval."'";
+						$index++;
+					else:
+						$sql .= " , ".$itemkey." = '".$itemval."'";
+					endif;
+			
+				endforeach;
+				$sql .= " WHERE idUsuario = ".$ids[$i];
+				$i++;
+				$querys[] = $sql;
+			endforeach;
+
+
+			foreach($querys as $key => $val):
+				$this->query($val);
+			endforeach;
 		}
 
 		public function defineUser($user){
