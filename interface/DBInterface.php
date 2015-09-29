@@ -604,6 +604,15 @@
 			const VE_ALL_DATE_BY_CLIENT     = "SELECT ve.*, IF(usr.gold = 1, 'NUFARM MAX GOLD' , 'NUFARM MAX' ) AS gold FROM ve_registro_anual as ve LEFT JOIN usuarios as usr ON usr.idUsuario = id_cliente WHERE id_cliente = :id AND fecha_inicio >= :inicio AND fecha_fin <= :fin";
 			const PN_ALL_DATE_BY_CLIENT     = "SELECT ve.*, IF(usr.gold = 1, 'NUFARM MAX GOLD' , 'NUFARM MAX' ) AS gold FROM ve_registro_anual as ve LEFT JOIN usuarios as usr ON usr.idUsuario = id_cliente WHERE id_cliente = :id AND fecha_inicio >= :inicio AND fecha_fin <= :fin AND usr.gold = 1";
 			const VE_CATPREMIOS             = "SELECT * FROM categorias_premios";
+			const VE_PREMIOS 				= "SELECT 
+													premios.*,
+												    cat.min_req,
+												    cat.max_req
+												FROM 
+													premios 
+												LEFT JOIN
+													categorias_premios  as cat ON cat.categoria = premios.categoria
+												WHERE premios.gold = 0";
 			const VE_USERFACTURACION        = "SELECT usr.idUsuario, fact.id_user, usr.vendedor  FROM `usuarios` as usr LEFT JOIN facturacion as fact ON fact.id_user = usr.idUsuario WHERE usr.vendedor = :id";
 			const VE_ALL_USERFACTURACION    = "SELECT usr.idUsuario, fact.id_user, usr.vendedor  FROM `usuarios` as usr LEFT JOIN facturacion as fact ON fact.id_user = usr.idUsuario ";
 			const VE_INS_FACT_INCIAL        = "INSERT INTO facturacion (id_user,id_vendedor,data,fact_total,fact_prod_clave,periodo_inicial,periodo_final) VALUES (:id,:vendedor, :data, 0, 0, :start, :end)";

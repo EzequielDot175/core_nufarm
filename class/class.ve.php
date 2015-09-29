@@ -84,12 +84,78 @@
 
 			endif;
 		}
+		public static function calcFactTotal($curr_total, $old_total){
+			if($curr_total != 0):
+				return round( ($curr_total / $old_total) * 100 );
+			else:
+				return 0;
+			endif;
+		}
+
+		public static function calcFactTotalClave($total, $clave){
+			if($total == 0 && $clave == 0 || $clave == 0):
+				return 0;
+			else:
+				return round( ($clave / $total) * 100 );
+			endif;
+		}
 
 		public static function formatCurrentPeriod($init, $final){
 			$dInit = new DateTime($init);
 			$dFinal = new DateTime($final);
 			return $dInit->format('Y')."/".$dFinal->format('Y');
 		}
+
+		public function getPrize(){
+
+		}
+
+		public static function widthbar($num){
+			switch ($num) {
+				case '0':
+					return 0;
+					break;
+				case '1':
+					return 30.6;
+					break;
+				case '2':
+					return 61.6;
+					break;
+				case '3':
+					return 100;
+
+					break;
+				
+				default:
+					return 0;
+					break;
+			}
+		}
+		public function getPrizeCategory($total, $num){
+			$sel = $this->query(self::VE_PREMIOS)->fetchAll();
+			$prize = array();
+			$categoria = 0;
+		
+
+			if($total >= 100):
+				
+			
+				foreach($sel as $key => $val):
+					
+						$min = $val->min_req;
+						$max = ($val->max_req == 0 ? 10000000 : $val->max_req );
+					
+						if($num >= $min && $num <= $max):
+						$categoria = $val->categoria;
+						endif;
+
+				endforeach;
+
+			endif;
+
+			return $categoria;
+		}
+
 		public function updateFacturacion($data,$id){
 			// print_r($data);
 			$std = new stdClass();
