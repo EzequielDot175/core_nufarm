@@ -32,8 +32,22 @@
 			endif;
 		}
 
+		public function basicsByIdPN($id){
+			if(!empty($id)):
+				$sel = $this->prepare(self::CLIENTE_BYVENDEDORPN);
+				$sel->bindParam(':id',$id, PDO::PARAM_INT);
+				$sel->execute();
+				return $sel->fetchAll();
+			else:
+				return $this->basics();
+			endif;
+		}
+
 		public function basicsVe(){
 			return $this->query(self::VE_ALL_CLIENTES)->fetchAll();
+		}
+		public function basicsPN(){
+			return $this->query(self::PN_ALL_CLIENTES)->fetchAll();
 		}
 
 		public static function byVendedor($id){

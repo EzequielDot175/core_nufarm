@@ -71,6 +71,29 @@
 		}
 
 
+		public function ForceAuth($id){
+			@session_destroy();
+			@session_start();
+			$sel = $this->prepare(self::AUTH_FORCE_AUTH_USER);
+			$sel->bindParam(':id', $id, PDO::PARAM_INT);
+			$sel->execute();
+			$params = $sel->fetch();
+
+			$this->userLogin($params->strEmail, $params->strPassword);
+		}
+
+
+		public function ForceAuthAdmin($id){
+			@session_destroy();
+			@session_start();
+			$sel = $this->prepare(self::AUTH_FORCE_AUTH_USER_ADMIN);
+			$sel->bindParam(':id', $id, PDO::PARAM_INT);
+			$sel->execute();
+			$params = $sel->fetch();
+
+			$this->userLoginAdmin($params->login, $params->password);
+		}
+
 		public static function idAdmin(){
 			self::startSession();
 
@@ -330,6 +353,14 @@
 			@session_destroy();
 		}
 
+
+		public static function sForceAuth($id){
+			return self::method('ForceAuth',$id);
+		}
+
+		public static function sForceAuthAdmin($id){
+			return self::method('ForceAuthAdmin', $id);
+		}
 
 	}
 

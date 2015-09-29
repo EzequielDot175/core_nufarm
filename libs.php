@@ -44,6 +44,7 @@
 	require_once(APP_DIR.'/class/class.filtros.php'); 
 	require_once(APP_DIR.'/class/class.ajax.php'); 
 	require_once(APP_DIR.'/class/class.ve.php');
+	require_once(APP_DIR.'/class/class.pn.php');
 	require_once(APP_DIR.'/class/class.mail.php');
 	require_once(APP_DIR.'/class/class.excel.php');
 

@@ -2,7 +2,7 @@
 	/**
 	* @internal [<description>]
 	*/
-	class VendedorEstrella extends DB
+	class PlanDeNegocios extends DB
 	{
 		public $role = Null;
 		
@@ -26,7 +26,7 @@
 				 * Si el periodo existe..
 				 */
 				$date = explode('_', $obj->date);
-				$sel = $this->prepare(self::VE_ALL_DATE_BY_CLIENT);
+				$sel = $this->prepare(self::PN_ALL_DATE_BY_CLIENT);
 				$sel->bindParam(':id',$obj->cliente, PDO::PARAM_INT);
 				$sel->bindParam(':inicio',$date[0], PDO::PARAM_STR);
 				$sel->bindParam(':fin',$date[1], PDO::PARAM_STR);
@@ -36,7 +36,7 @@
 			else:
 				$periodos = $this->periodosReales();
 				$ultimo_periodo = array_pop($periodos);
-				$sel = $this->prepare(self::VE_CLIENTFACTBYID);
+				$sel = $this->prepare(self::PN_CLIENTFACTBYID);
 				$sel->bindParam(':id', $obj->cliente, PDO::PARAM_INT);
 				$sel->bindParam(':periodo_anterior', $ultimo_periodo->inicio, PDO::PARAM_STR);
 
@@ -46,6 +46,8 @@
 			endif;
 
 		}
+
+
 
 		public function getAllByAuth($forceAuth = null){
 			$id = (!is_null($forceAuth) ? $forceAuth : Auth::idAdmin());
@@ -60,7 +62,7 @@
 			if($this->checkClosedPeriod($periodo)):
 
 				$date = explode('_', $_POST['params']['date']);
-				$sel = $this->prepare(self::VE_ALL_DATE);
+				$sel = $this->prepare(self::PN_ALL_DATE);
 				$sel->bindParam(':id',$id, PDO::PARAM_INT);
 				$sel->bindParam(':inicio',$date[0], PDO::PARAM_STR);
 				$sel->bindParam(':fin',$date[1], PDO::PARAM_STR);
@@ -76,7 +78,7 @@
 				 */
 				$periodos = $this->periodosReales();
 				$ultimo_periodo = array_pop($periodos);
-				$sel = $this->prepare(self::VE_CLIENTFACTBYIDVENDEDOR);
+				$sel = $this->prepare(self::PN_CLIENTFACTBYIDVENDEDOR);
 				$sel->bindParam(':id', $id, PDO::PARAM_INT);
 				$sel->bindParam(':periodo_anterior', $ultimo_periodo->inicio, PDO::PARAM_STR);
 				$sel->execute();
@@ -99,17 +101,15 @@
 
 			$data_facturacion = json_encode($std);
 			// echo($id);
-			
+
 			$upd = $this->prepare(self::VE_UPDATE_CURRENT_PERIOD_BYID);
 			$upd->bindParam(':id', $id, PDO::PARAM_INT);
 			$upd->bindParam(':data', $data_facturacion, PDO::PARAM_STR);
 			$upd->bindParam(':total', $total, PDO::PARAM_INT);
 			$upd->bindParam(':fact_prod_clave', $total_prod_clave, PDO::PARAM_INT);
 			$upd->execute();
-
 			// echo($upd->rowCount() > 0 ? 'true' : 'false');
-			// // var_dump($id);
-			// die();
+
 			$periodos = $this->periodosReales();
 			$ultimo_periodo = array_pop($periodos);
 			$sel = $this->prepare(self::VE_CLIENTFACTBYIDROW);
@@ -145,7 +145,7 @@
 			
 			if($_POST['user']['role'] != 3):
 				if(empty($obj->vendedor) && empty($obj->cliente)):
-					return $this->allVe($obj->date);
+					return $this->allPn($obj->date);
 
 				elseif (!empty($obj->cliente) && empty($obj->vendedor)):
 
@@ -159,6 +159,7 @@
 				endif;
 
 			else:
+
 				if(empty($obj->cliente)):
 					return $this->getAllByAuth();
 				else:
@@ -168,10 +169,10 @@
 
 		}
 
-		public function allVe($date){
+		public function allPn($date){
 			if($this->checkClosedPeriod($date)):
 				$date = explode("_", $date);
-				$sel = $this->prepare(self::VE_ALL_CLIENTES_VENDEDORES_BY_PERIOD);
+				$sel = $this->prepare(self::PN_ALL_CLIENTES_VENDEDORES_BY_PERIOD);
 				$sel->bindParam(':inicio', $date[0], PDO::PARAM_STR);
 				$sel->bindParam(':fin', $date[1], PDO::PARAM_STR);
 				$sel->execute();
@@ -181,7 +182,7 @@
 				
 				$periodos = $this->periodosReales();
 				$ultimo_periodo = array_pop($periodos);
-				$sel = $this->prepare(self::VE_ALL_CLIENTES_VENDEDORES);
+				$sel = $this->prepare(self::PN_ALL_CLIENTES_VENDEDORES);
 				$sel->bindParam(':periodo_anterior', $ultimo_periodo->inicio, PDO::PARAM_STR);
 				$sel->execute();
 				return $sel->fetchAll();
@@ -300,12 +301,18 @@
 		}
 
 
-		public function getFacturacion($id){
+		public function getFacturacion($id, $json = true){
 			$sel = $this->prepare(self::VE_GETFACTURACION);
 			$sel->bindParam(':id', $id, PDO::PARAM_INT);
 			$sel->execute();
-			echo json_encode($sel->fetch());
+			if($json):
+				echo json_encode($sel->fetch());
+			else:
+				return $sel->fetch();
+			endif;
 		}
+
+
 
 		public function hasFacturacion(){
 			$id = Auth::id();
@@ -366,6 +373,21 @@
 			$sel->bindParam(':id', $id, PDO::PARAM_INT);
 			$sel->execute();
 			return $sel->fetch();
+		}
+
+
+		public static function percentageTotal($obj, $total){
+			if((int)$obj != 0):
+				return round( ($total / $obj) * 100 );
+			else:
+				return 0;
+			endif;
+		}
+
+		public static function formatCurrentPeriod($init, $final){
+			$dInit = new DateTime($init);
+			$dFinal = new DateTime($final);
+			return $dInit->format('Y')."/".$dFinal->format('Y') ;
 		}
 
 		private function initDataFacturacion(){

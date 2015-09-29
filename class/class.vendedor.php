@@ -17,6 +17,12 @@
 			return $sel->fetchAll();
 		}
 
+		public function basicsPN(){
+			$sel = $this->prepare(self::VENDEDOR_OPTIONS);
+			$sel->execute();
+			return $sel->fetchAll();
+		}
+
 
 
 		public static function options($selected = null){

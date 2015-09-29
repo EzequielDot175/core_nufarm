@@ -72,6 +72,8 @@
 			const AUTH_DEFINE_USER				= "SELECT IF(usr.strEmail = :mail , true, false) as isUser, IF(per.login = :mail, true, false) as isAdmin FROM usuarios as usr , personal as per WHERE usr.strEmail = :mail OR per.login = :mail LIMIT 1";
 			const AUTH_LOGIN_USER_ADMIN 		= "SELECT * FROM personal WHERE login = :user AND password = :pass ";
 			const AUTH_LOGIN_USER 				= "SELECT * FROM usuarios WHERE strEmail = :user AND strPassword = :pass ";
+			const AUTH_FORCE_AUTH_USER 			= "SELECT strEmail, strPassword FROM usuarios WHERE idUsuario = :id";
+			const AUTH_FORCE_AUTH_USER_ADMIN	= "SELECT login, password FROM personal WHERE id = :id";
 
 			/**
 			* @param class TempMaxCompra
@@ -563,6 +565,7 @@
 			
 			const CLIENTE_OPTIONS = "SELECT idUsuario as id, strEmpresa FROM usuarios";
 			const CLIENTE_BYVENDEDOR = "SELECT idUsuario as id, strEmpresa FROM usuarios WHERE vendedor = :id";
+			const CLIENTE_BYVENDEDORPN = "SELECT idUsuario as id, strEmpresa FROM usuarios WHERE vendedor = :id AND gold = 1";
 
 			/**
 			 * @internal
@@ -570,6 +573,17 @@
 			 */
 			
 			const VENDEDOR_OPTIONS = "SELECT id , nombre, apellido FROM personal WHERE role = 3";
+			const VENDEDOR_OPTIONS_PN = "SELECT 
+											per.id,
+										    per.nombre,
+										    per.apellido
+										FROM 
+											usuarios as usr
+										LEFT JOIN
+											personal as per  ON per.id = usr.vendedor
+										WHERE
+											usr.gold = 1 AND per.role = 3
+										GROUP BY per.id";
 
 
 			/**
@@ -582,7 +596,13 @@
 			const VE_ANUAL                  = "SELECT DATE_FORMAT(fecha_inicio, '%Y-%m-%d') as inicio, DATE_FORMAT(fecha_fin, '%Y-%m-%d') as fin FROM ve_registro_anual GROUP BY fecha_inicio, fecha_fin ";
 			const VE_ALL_NO_DATE            = "SELECT ve.*, IF(usr.gold = 1, 'NUFARM MAX GOLD' , 'NUFARM MAX' ) AS gold FROM ve_registro_anual as ve LEFT JOIN usuarios as usr ON usr.idUsuario = id_cliente WHERE id_vendedor = :id";
 			const VE_ALL_DATE               = "SELECT ve.*, IF(usr.gold = 1, 'NUFARM MAX GOLD' , 'NUFARM MAX' ) AS gold FROM ve_registro_anual as ve LEFT JOIN usuarios as usr ON usr.idUsuario = id_cliente WHERE id_vendedor = :id AND fecha_inicio >= :inicio AND fecha_fin <= :fin";
+			const PN_ALL_DATE               = "SELECT 
+												ve.*, IF(usr.gold = 1, 'NUFARM MAX GOLD' , 'NUFARM MAX' ) AS gold 
+											 	FROM ve_registro_anual as ve 
+											  	LEFT JOIN usuarios as usr ON usr.idUsuario = id_cliente 
+											  	WHERE id_vendedor = :id AND fecha_inicio >= :inicio AND fecha_fin <= :fin AND usr.gold = 1";
 			const VE_ALL_DATE_BY_CLIENT     = "SELECT ve.*, IF(usr.gold = 1, 'NUFARM MAX GOLD' , 'NUFARM MAX' ) AS gold FROM ve_registro_anual as ve LEFT JOIN usuarios as usr ON usr.idUsuario = id_cliente WHERE id_cliente = :id AND fecha_inicio >= :inicio AND fecha_fin <= :fin";
+			const PN_ALL_DATE_BY_CLIENT     = "SELECT ve.*, IF(usr.gold = 1, 'NUFARM MAX GOLD' , 'NUFARM MAX' ) AS gold FROM ve_registro_anual as ve LEFT JOIN usuarios as usr ON usr.idUsuario = id_cliente WHERE id_cliente = :id AND fecha_inicio >= :inicio AND fecha_fin <= :fin AND usr.gold = 1";
 			const VE_CATPREMIOS             = "SELECT * FROM categorias_premios";
 			const VE_USERFACTURACION        = "SELECT usr.idUsuario, fact.id_user, usr.vendedor  FROM `usuarios` as usr LEFT JOIN facturacion as fact ON fact.id_user = usr.idUsuario WHERE usr.vendedor = :id";
 			const VE_ALL_USERFACTURACION    = "SELECT usr.idUsuario, fact.id_user, usr.vendedor  FROM `usuarios` as usr LEFT JOIN facturacion as fact ON fact.id_user = usr.idUsuario ";
@@ -604,6 +624,24 @@
 													personal as per ON per.id = usr.vendedor
 												WHERE
 													fact.id_user = :id";
+			const PN_CLIENTFACTBYID         = "SELECT
+													fact.id,
+													fact.obj_fact_clave,
+													fact.data as facturacion,
+													fact.fact_total as total,
+												    fact.fact_prod_clave as total_prod_clave,
+												    usr.strEmpresa as cliente,
+												    IF(usr.gold = 1,'NUFARM MAXX GOLD' , 'NUFARM MAXX') AS gold,
+												    CONCAT(per.nombre,' ',per.apellido) as vendedor,
+												    (SELECT total FROM ve_registro_anual WHERE fecha_inicio = :periodo_anterior AND id_cliente = fact.id_user) as ultimo_total
+												FROM 
+													facturacion as fact
+												LEFT JOIN
+													usuarios as usr ON usr.idUsuario = fact.id_user
+												LEFT JOIN
+													personal as per ON per.id = usr.vendedor
+												WHERE
+													fact.id_user = :id AND usr.gold = 1";
 			const VE_ALL_CLIENTES_VENDEDORES   = "SELECT
 													fact.id,
 													fact.data as facturacion,
@@ -619,7 +657,23 @@
 													usuarios as usr ON usr.idUsuario = fact.id_user
 												LEFT JOIN
 													personal as per ON per.id = usr.vendedor";
+			const PN_ALL_CLIENTES_VENDEDORES   = "SELECT
+													fact.id,
+													fact.data as facturacion,
+													fact.fact_total as total,
+												    fact.fact_prod_clave as total_prod_clave,
+												    usr.strEmpresa as cliente,
+												    IF(usr.gold = 1,'NUFARM MAXX GOLD' , 'NUFARM MAXX') AS gold,
+												    CONCAT(per.nombre,' ',per.apellido) as vendedor,
+												    (SELECT total FROM ve_registro_anual WHERE fecha_inicio = :periodo_anterior AND id_cliente = fact.id_user) as ultimo_total
+												FROM 
+													facturacion as fact
+												LEFT JOIN
+													usuarios as usr ON usr.idUsuario = fact.id_user
+												LEFT JOIN
+													personal as per ON per.id = usr.vendedor WHERE usr.gold = 1";
 			const VE_ALL_CLIENTES_VENDEDORES_BY_PERIOD = "SELECT ve.*,  IF(usr.gold = 1,'NUFARM MAXX GOLD' , 'NUFARM MAXX') AS gold FROM ve_registro_anual as ve LEFT JOIN usuarios as usr ON usr.idUsuario = ve.id_vendedor WHERE fecha_inicio = :inicio AND fecha_fin = :fin";
+			const PN_ALL_CLIENTES_VENDEDORES_BY_PERIOD = "SELECT ve.*,  IF(usr.gold = 1,'NUFARM MAXX GOLD' , 'NUFARM MAXX') AS gold FROM ve_registro_anual as ve LEFT JOIN usuarios as usr ON usr.idUsuario = ve.id_vendedor WHERE fecha_inicio = :inicio AND fecha_fin = :fin AND usr.gold = 1";
 			const VE_CLIENTFACTBYIDROW         = "SELECT
 													fact.id,
 													fact.data as facturacion,
@@ -655,11 +709,31 @@
 													personal as per ON per.id = usr.vendedor
 												WHERE
 													fact.id_vendedor = :id";
+				const PN_CLIENTFACTBYIDVENDEDOR = "SELECT 
+													fact.id,
+													fact.obj_fact_clave,
+													fact.data as facturacion,
+													fact.fact_total as total,
+												    fact.fact_prod_clave as total_prod_clave,
+												    usr.strEmpresa as cliente,
+												    IF(usr.gold = 1,'NUFARM MAXX GOLD' , 'NUFARM MAXX') AS gold,
+												    CONCAT(per.nombre,' ',per.apellido) as vendedor,
+												    (SELECT total FROM ve_registro_anual WHERE fecha_inicio = :periodo_anterior AND id_cliente = fact.id_user) as ultimo_total,
+												    (SELECT total_prod_clave FROM ve_registro_anual WHERE fecha_inicio = :periodo_anterior AND id_cliente = fact.id_user) as ultimo_prod_clave
+												FROM 
+													facturacion as fact
+												LEFT JOIN
+													usuarios as usr ON usr.idUsuario = fact.id_user
+												LEFT JOIN
+													personal as per ON per.id = usr.vendedor
+												WHERE
+													fact.id_vendedor = :id AND usr.gold = 1";
 			const VE_TOTAL_BY_PERIOD 		= "SELECT SUM(total) as total, SUM(total_prod_clave) as producto_clave FROM ve_registro_anual WHERE id_vendedor = :id AND fecha_inicio >= :inicio AND fecha_fin <= :fin";
 			const VE_TOTAL_BY_CURRENT_PERIOD 		= "SELECT SUM(fact_total) as total, SUM(fact_prod_clave) as producto_clave FROM facturacion WHERE id_vendedor = :id";
 			const VE_UPDATE_CURRENT_PERIOD_BYID = "UPDATE facturacion SET data = :data , fact_total = :total, fact_prod_clave = :fact_prod_clave WHERE id = :id";
 			const VE_SEL_FACT_BY_ID 			= "SELECT * FROM facturacion WHERE id = :id";
 			const VE_ALL_CLIENTES 				= "SELECT idUsuario AS id, strEmpresa FROM usuarios ";
+			const PN_ALL_CLIENTES 				= "SELECT idUsuario AS id, strEmpresa FROM usuarios WHERE gold = 1";
 			const VE_SEL_FACT_BY_IDUSER 		= "SELECT * FROM facturacion WHERE id_user = :id";
 			const VE_CATEGORY_OLD_PERIOD_BY_USER = "SELECT 
 				  ROUND( ( ve.total_prod_clave / ve.total ) * 100 ) as porcentaje

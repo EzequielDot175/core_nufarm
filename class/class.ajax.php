@@ -34,6 +34,23 @@
 			}
 			
 		}
+		private static function vendedoresPN(){
+			$user = self::post('user');
+
+			switch ($user['role']) {
+				case '1':
+				case '2':
+					$vendedores = new Vendedor();
+					$all = $vendedores->basicsPN();
+					echo json_encode($all);
+					break;
+
+				default:
+					
+					break;
+			}
+			
+		}
 
 		private static function clientes(){
 			$user = self::post('user');
@@ -58,6 +75,31 @@
 			endswitch;
 		}
 
+		private static function clientesPN(){
+			$user = self::post('user');
+			$clientes = new Cliente();
+
+			switch ($user['role']):
+				case '1':
+				case '2':
+						if(is_null(self::post('id'))):
+							$all = $clientes->basicsPN();
+							echo json_encode($all);
+						else:
+							$all = $clientes->basicsByIdPN(self::post('id'));
+							echo json_encode($all);
+						endif;
+					break;
+				default:
+				// print_r($_POST);
+					$all = $clientes->basicsByIdPN($user['id']);
+					// print_r($all);
+					// die();
+					echo json_encode($all);
+					break;
+			endswitch;
+		}
+
 		public static function checkPeriod(){
 			$date = self::post('date');
 			$ve = new VendedorEstrella();
@@ -66,6 +108,7 @@
 		}
 
 		public static function updateDataFacturacion(){
+			
 			$data = self::post('data');
 			$ve = new VendedorEstrella();
 			$data = $ve->updateFacturacion(self::post('data'), self::post('id') );
@@ -78,6 +121,17 @@
 			$ve = new VendedorEstrella();
 			$ve->role = $user['role'];
 			$collection = $ve->getResults($filter);
+			echo json_encode($collection);
+			// $ve->getResults($filter);
+			// print_r($collection);
+		}
+
+		private static function filterPN(){
+			$filter = self::post('params');
+			$user = self::post('user');
+			$pn = new PlanDeNegocios();
+			$pn->role = $user['role'];
+			$collection = $pn->getResults($filter);
 			echo json_encode($collection);
 			// $ve->getResults($filter);
 			// print_r($collection);
