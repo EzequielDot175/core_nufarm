@@ -24,6 +24,22 @@
 		}
 
 
+		public function getIdByEmail($email){
+
+
+			$sel = $this->prepare(self::VENDEDOR_GET_ID_BY_EMAIL);
+			$sel->bindParam(':email', $email, PDO::PARAM_STR);
+			$sel->execute();
+
+			$result = $sel->fetch();
+			if(isset($result->id)){
+				return $result->id;
+			}else{
+				throw new Exception("Id cant be returned", 1);
+			}
+			// return ;
+		}
+
 
 		public static function options($selected = null){
 			$collection = self::method('basics');

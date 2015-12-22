@@ -44,7 +44,9 @@
 					'nombre' => $usuario->strNombre,
 					'apellido' => $usuario->strApellido,
 					'mensaje' => $obj->descripcion,
-					'asunto' => $obj->asunto
+					'asunto' => $obj->asunto,
+					'fecha' => date('d/m/Y'),
+					'empresa' => $obj->strEmpresa
 					));
 
 				$this->Body = $template->get();
@@ -58,13 +60,15 @@
 
 		public function respuestaConsulta($array){
 			$obj = (Object)$array;
-			$usuario = Auth::UserAdmin();
+			$usuario = Usuario::getById($obj->user_id);
+
 			$template = new Template('consulta-response',
 				array(
 					'asunto' => $obj->asunto,
 					'nombre' => $obj->nombre,
 					'apellido' => $obj->apellido,
-					'mensaje' => $obj->mensaje
+					'mensaje' => $obj->mensaje,
+					'fecha' => date('d/m/Y')
 					)
 				);
 

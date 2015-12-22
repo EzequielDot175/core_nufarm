@@ -116,14 +116,25 @@
 		}
 
 		private static function filter(){
+
 			$filter = self::post('params');
 			$user = self::post('user');
 			$ve = new VendedorEstrella();
 			$ve->role = $user['role'];
 			$collection = $ve->getResults($filter);
+
+
 			echo json_encode($collection);
 			// $ve->getResults($filter);
 			// print_r($collection);
+		}
+
+
+		private static function changeFormStatus(){
+			$id = Auth::id();
+			$user = new Usuario();
+			$result = $user->changeFormValue($id);
+			echo ($result ? 'true' : 'false' );
 		}
 
 		private static function filterPN(){
@@ -137,19 +148,33 @@
 			// print_r($collection);
 		}
 
+		private static function getAuthFiles(){
+			$real_dir = str_replace('core_nufarm','',APP_DIR);
+
+			UserFiles::$dir = $real_dir."formulario/uploads/folder_userid_".Auth::id();
+			print_r(UserFiles::listFiles(true));
+		}
+
+		private static function deleteUserFiles(){
+			$file = self::post('fileName');
+			$real_dir = str_replace('core_nufarm','',APP_DIR);
+			UserFiles::$dir = $real_dir."formulario/uploads/folder_userid_".Auth::id();
+			echo (UserFiles::deleteFile($file) ? 'true' : 'false');
+		}
+
 		private static function editDataAuth(){
 			$params = (Object)self::post('data');
 
 			$format = array();
-			$format['strCargo'] = $params->appointment;
-			$format['telefono'] = $params->cellphone;
+			$format['cargorelevado'] = $params->appointment;
+			$format['celular'] = $params->cellphone;
 			$format['cumpleanos'] = $params->birthday;
 			$format['compania'] = $params->company;
 			$format['strNombre'] = $params->name;
+			$format['strEmail'] = $params->mail;
 			$format['strApellido'] = $params->lastName;
-			$format['direccion'] = $params->companyAdress;
-			$format['estadocivil'] = $params->civilStatus;
 			$format['sms'] = ($params->sms ? '1' : '0');
+
 
 			$usuario = new usuario();
 
@@ -205,7 +230,8 @@
 		private static function Periodos(){
 			$ve = new VendedorEstrella();
 			$collection = $ve->periodos();
-			echo json_encode($collection);
+			$last = array_pop($collection);
+			echo json_encode($last);
 		}
 
 		private static function User(){
@@ -273,6 +299,18 @@
 				echo("false");			
 			endif;
 
+		}
+
+		private static function getClientsByRoleAndId(){
+			$role = self::post('role');
+			$id   = self::post('id');
+
+			$users = new Usuario();
+			if($role == 1){
+    			 echo json_encode($users->getAllNotLimit());
+			}else{
+				echo json_encode($users->getAllBySeller($id));
+			}
 		}
 
 		private static function loginNufarm(){

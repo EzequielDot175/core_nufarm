@@ -18,6 +18,10 @@
 			print_r($date);
 		}
 
+		public static function  formatNumbers($num){
+			echo number_format($num,0 ,",", ".");
+		}
+
 		public function getByCliente($obj){
 			// $date = explode("_", $obj->date);
 
@@ -47,19 +51,85 @@
 
 		}
 
-		public function getAllByAuth($forceAuth = null){
+		public function getMailDataGenerator($mail){
+			$period = $this->periodos();
+			$last = array_pop($period);
+
+			$user = new Usuario();
+			$id = $user->getByMail($mail);
+			$obj = new stdClass();
+			$obj->{"cliente"} = $id->id;
+			$obj->{"date"} = $last->inicio."_".$last->fin;
+			$data = $this->getByCliente($obj);
+
+
+
+			$result = new stdClass();
+			$result->{"ultimo_total"} = (double)$data[0]->ultimo_total;
+			$result->{"total"} = (double)$data[0]->total;
+			$result->{"total_clave"} = (double)$data[0]->total_prod_clave;
+			$result->{"porcentaje_clave"} = $this->getPercent($data[0]->total_prod_clave, $data[0]->total);
+
+			return $result;
+		}
+
+
+		public function getMailDataGeneratorSeller($email){
+
+			
+			try {
+				$period = $this->periodos();
+				$last = array_pop($period);
+				$seller = new Vendedor();
+				$id = $seller->getIdByEmail($email);
+				$period = $last->inicio."_".$last->fin;
+				$data = $this->getAllByAuth($id, $period);
+
+				$collection = array();
+
+				foreach($data as $key => $val):
+					$result = new stdClass();
+					$result->{'cliente'} = $val->cliente;
+					$result->{"ultimo_total"} = (double)$val->ultimo_total;
+					$result->{"total"} = (double)$val->total;
+					$result->{"total_clave"} = (double)$val->total_prod_clave;
+					$result->{"porcentaje_clave"} = $this->getPercent($val->total_prod_clave, $val->total);
+
+					$collection[] =$result;
+				endforeach;
+
+				return $collection;
+			
+
+			} catch (Exception $e) {
+				echo $e->getMessage();
+			}
+			
+		}
+
+		public function getPercent($clave, $total){
+			if ($total != 0 && !is_null($total)) {
+				return ((double)$clave / (double)$total) * 100;
+			}else{
+				return 0;
+			}
+		}
+
+
+		public function getAllByAuth($forceAuth = null, $period = null){
 			$id = (!is_null($forceAuth) ? $forceAuth : Auth::idAdmin());
 
 			// Periodos existentes que ya fueron cerrados y guardados en ve_registro_anual
-			$periodo = $_POST['params']['date'];
+			$periodo = (is_null($period) ? $_POST['params']['date'] : $period);
 			
 			/**
 			 * Compruebo que no sea un periodo cerrado y guardado en base de datos
 			 */
-			
+
+
 			if($this->checkClosedPeriod($periodo)):
 
-				$date = explode('_', $_POST['params']['date']);
+				$date = explode('_', $periodo);
 				$sel = $this->prepare(self::VE_ALL_DATE);
 				$sel->bindParam(':id',$id, PDO::PARAM_INT);
 				$sel->bindParam(':inicio',$date[0], PDO::PARAM_STR);
@@ -74,12 +144,14 @@
 				 * registrado en la base de datos por lo tanto 
 				 * busco en los resultados creados en la base de datos
 				 */
+
 				$periodos = $this->periodosReales();
 				$ultimo_periodo = array_pop($periodos);
 				$sel = $this->prepare(self::VE_CLIENTFACTBYIDVENDEDOR);
 				$sel->bindParam(':id', $id, PDO::PARAM_INT);
 				$sel->bindParam(':periodo_anterior', $ultimo_periodo->inicio, PDO::PARAM_STR);
 				$sel->execute();
+
 				return $sel->fetchAll();
 
 			endif;
@@ -162,10 +234,10 @@
 			$total = 0;
 			$total_prod_clave = 0;
 			foreach($data as $key => $val):
-				$total += $val['total'];
-				$total_prod_clave += $val['total_prod_clave'];
-				@$std->{ucwords($key)}->{'facturacion_total'} = (int)$val['total']; 
-				@$std->{ucwords($key)}->{'facturacion_prod_clave'} = (int)$val['total_prod_clave']; 
+				$total += (float)$val['total'];
+				$total_prod_clave += (float)$val['total_prod_clave'];
+				@$std->{ucwords($key)}->{'facturacion_total'} = (float)$val['total'];
+				@$std->{ucwords($key)}->{'facturacion_prod_clave'} = (float)$val['total_prod_clave'];
 			endforeach;
 
 			$data_facturacion = json_encode($std);
@@ -212,20 +284,21 @@
 
 		public function getResults($params){
 			$obj = (Object)$params;
-			$date = (empty($obj->date) ? 'all' : $obj->date);
-			
+
 			if($_POST['user']['role'] != 3):
 				if(empty($obj->vendedor) && empty($obj->cliente)):
+					//die("1");
 					return $this->allVe($obj->date);
 
 				elseif (!empty($obj->cliente) && empty($obj->vendedor)):
-
+					//die("2");
 					return $this->getByCliente($obj);
 
 				elseif (!empty($obj->vendedor) && empty($obj->cliente)):
-
+					//die("3");
 					return $this->getAllByAuth($obj->vendedor);
 				else:
+					//die("4");
 					return $this->getByCliente($obj);
 				endif;
 
@@ -252,6 +325,8 @@
 
 
 		public function allVe($date){
+
+
 			if($this->checkClosedPeriod($date)):
 				$date = explode("_", $date);
 				$sel = $this->prepare(self::VE_ALL_CLIENTES_VENDEDORES_BY_PERIOD);
@@ -261,15 +336,46 @@
 				
 				return $sel->fetchAll();
 			else:
-				
 				$periodos = $this->periodosReales();
 				$ultimo_periodo = array_pop($periodos);
 				$sel = $this->prepare(self::VE_ALL_CLIENTES_VENDEDORES);
 				$sel->bindParam(':periodo_anterior', $ultimo_periodo->inicio, PDO::PARAM_STR);
 				$sel->execute();
+
 				return $sel->fetchAll();
 				
 			endif;
+		}
+
+		public function hasOtherPeriod($user){
+			if(!$this->checkLastPeriod($user)):
+
+
+
+				echo "<pre>";
+				print_r($this->periodosReales());
+				echo "</pre>";
+				die();
+
+			endif;
+		}
+
+		public function checkLastPeriod($id_client){
+			$sel = $this->prepare(self::VE_COUNT_REGISTERS_BY_ID);
+			$sel->bindParam(':id', $id_client, PDO::PARAM_INT);
+			$result = $sel->fetch();
+			return ($result->cantidad > 0 ? true : false);
+		}
+
+		public function createNewHistory(){
+			$ins = $this->prepare(self::VE_CREATE_NEW_HISTORY);
+			$ins->prepare(':id_vendedor');
+			$ins->prepare(':vendedor');
+			$ins->prepare(':id_cliente');
+			$ins->prepare(':cliente');
+			$ins->prepare(':inicio');
+			$ins->prepare(':fin');
+
 		}
 
 		public function setInit(){
@@ -450,6 +556,53 @@
 			$sel->bindParam(':id', $id, PDO::PARAM_INT);
 			$sel->execute();
 			return $sel->fetch();
+		}
+
+		public static function getNextPeriodMonth(){
+			$current = (int)date('n') - 1;
+			$meses = array ("enero", "febrero", "marzo", "abril", "mayo", "junio", "julio", "agosto", "septiembre", "octubre", "noviembre", "diciembre");
+			$periodo = array ("agosto", "septiembre", "octubre", "noviembre", "diciembre", "enero", "febrero", "marzo");
+
+			$keyfromperiod = array_search($meses[$current], $periodo);
+
+			$current_period = array("key" => $keyfromperiod,"value" => $periodo[$keyfromperiod]);
+
+			if(isset($periodo[$keyfromperiod + 1])){
+				return array("key" => $keyfromperiod + 1,"value" => $periodo[$keyfromperiod + 1]);
+			}else{
+				return array("key" => $keyfromperiod,"value" => $periodo[0]);
+			}
+		}
+
+		public function getGraphData($data = null,$lastPeriod){
+			$graphData = new stdClass();
+
+			$period = self::getNextPeriodMonth();
+			$object = json_decode($data);
+
+			$total = array();
+			$clave = array();
+			$label = array();
+			$sumtotal = 0;
+			$sumclave = 0;
+			$key = 0;
+			foreach($object as $jsonkey => $jsonval):
+				$label[$key] = "";
+				$sumtotal += $jsonval->facturacion_total;
+				$sumclave += $jsonval->facturacion_prod_clave;
+				$total[$key] = array("percent" => self::calcFactTotal($sumtotal,$lastPeriod->total),"value" => $sumtotal);
+				$clave[$key] = array("percent" => self::calcFactTotalClave($sumtotal, $sumclave),"value" => $sumclave) ;
+				$key++;
+			endforeach;
+
+
+
+			$graphData->{'lastColumnCharged'} = $period["key"];
+			$graphData->total = array_reverse($total);
+			$graphData->label = $label;
+			$graphData->clave = array_reverse($clave);
+
+			return $graphData;
 		}
 
 		private function initDataFacturacion(){

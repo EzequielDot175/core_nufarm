@@ -16,10 +16,26 @@
 		function __construct()
 		{
 			$this->excel = new PHPExcel();
-			$this->cells = range('A', 'Z');
+			$this->cells = $this->getRange();
 			$this->dir = APP_DIR.'/excel/';
 			$this->name = "Nufarm Excel - ".rand(100000,900000);
 
+		}
+		
+		
+		
+		
+		public function getRange(){
+			$original = range('A', 'Z');
+			$cells = $original;
+
+			for($i = 0;$i < count($original); $i++){
+				for($b = 0;$b < count($original); $b++){
+					$cells[] = $original[$i].$original[$b];
+				}
+			}
+
+			return $cells;
 		}
 		/**
 		*	@param array
@@ -55,8 +71,12 @@
 		/**
 		 * Set Dir
 		 */
-		public function setDir($localPath){
-			$this->dir = APP_DIR.$localPath;
+		public function setDir($localPath,$absolute = false){
+			if($absolute){
+				$this->dir = $localPath;
+			}else{
+				$this->dir = APP_DIR.$localPath;
+			}
 		}
 
 		/**
@@ -105,6 +125,37 @@
             $objWriter->save($this->dir.$this->name.'.xlsx');
 		}
 
+		public function setFilterUsers(){
+			$this->excel->getActiveSheet()->getColumnDimension('A')->setWidth(50);
+			$this->excel->getActiveSheet()->getColumnDimension('B')->setWidth(50);
+			$this->excel->getActiveSheet()->getColumnDimension('C')->setWidth(50);
+			$this->excel->getActiveSheet()->getColumnDimension('D')->setWidth(50);
+			$this->excel->getActiveSheet()->getColumnDimension('E')->setWidth(50);
+			$this->excel->getActiveSheet()->getColumnDimension('F')->setWidth(50);
+			$this->excel->getActiveSheet()->getColumnDimension('G')->setWidth(50);
+			$this->excel->getActiveSheet()->getColumnDimension('H')->setWidth(50);
+			$this->excel->getActiveSheet()->getColumnDimension('I')->setWidth(50);
+			$this->excel->getActiveSheet()->getColumnDimension('J')->setWidth(50);
+			$this->excel->getActiveSheet()->getColumnDimension('K')->setWidth(50);
+			$this->excel->getActiveSheet()->getColumnDimension('L')->setWidth(50);
+			$this->excel->getActiveSheet()->getColumnDimension('M')->setWidth(50);
+			$this->excel->getActiveSheet()->getColumnDimension('N')->setWidth(50);
+			$this->excel->getActiveSheet()->getColumnDimension('Ñ')->setWidth(50);
+			$this->excel->getActiveSheet()->getColumnDimension('O')->setWidth(50);
+			$this->excel->getActiveSheet()->getColumnDimension('P')->setWidth(50);
+			$this->excel->getActiveSheet()->getColumnDimension('K')->setWidth(50);
+			$this->excel->getActiveSheet()->getColumnDimension('R')->setWidth(50);
+			$this->excel->getActiveSheet()->getColumnDimension('S')->setWidth(50);
+			$this->excel->getActiveSheet()->getColumnDimension('T')->setWidth(50);
+			$this->excel->getActiveSheet()->getColumnDimension('U')->setWidth(50);
+			$this->excel->getActiveSheet()->getColumnDimension('V')->setWidth(50);
+
+			$this->excel->getActiveSheet()->getStyle('A1:V1')->getFont()->setBold(true);
+			$this->excel->getActiveSheet()->getStyle('A1:V1')->getFont()->getColor()->setARGB(PHPExcel_Style_Color::COLOR_BLACK);
+			$this->excel->getActiveSheet()->getStyle('A1:V1')->getFill()->setFillType(PHPExcel_Style_Fill::FILL_SOLID);
+			$this->excel->getActiveSheet()->getStyle('A1:V1')->getFill()->getStartColor()->setARGB('DDDDDD');
+		}
+
 		public function setFiltrosFormat($data){
 
 			/**
@@ -129,10 +180,10 @@
 			$this->excel->getActiveSheet()->setCellValue('F1','PRODUCTO');
 			$this->excel->getActiveSheet()->setCellValue('G1','UNIDADES');
 			$this->excel->getActiveSheet()->setCellValue('H1','PAGADO');
-			$this->excel->getActiveSheet()->getStyle('A1:H1')->getFont()->setBold(true);
-			$this->excel->getActiveSheet()->getStyle('A1:H1')->getFont()->getColor()->setARGB(PHPExcel_Style_Color::COLOR_WHITE);
-			$this->excel->getActiveSheet()->getStyle('A1:H1')->getFill()->setFillType(PHPExcel_Style_Fill::FILL_SOLID);
-			$this->excel->getActiveSheet()->getStyle('A1:H1')->getFill()->getStartColor()->setARGB('DDD9C4');
+			$this->excel->getActiveSheet()->getStyle('A1:1')->getFont()->setBold(true);
+			$this->excel->getActiveSheet()->getStyle('A1:1')->getFont()->getColor()->setARGB(PHPExcel_Style_Color::COLOR_WHITE);
+			$this->excel->getActiveSheet()->getStyle('A1:1')->getFill()->setFillType(PHPExcel_Style_Fill::FILL_SOLID);
+			$this->excel->getActiveSheet()->getStyle('A1:1')->getFill()->getStartColor()->setARGB('DDD9C4');
 	
 			$formatData = array();
 
@@ -147,6 +198,7 @@
 			'PAGADO');
 			
 			$startKey = 2;
+
 
 
 

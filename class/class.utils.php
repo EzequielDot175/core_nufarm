@@ -37,6 +37,21 @@
 				endif;
 			endforeach;
 		}
+
+		public static function bannedLocations(){
+			$is_banned = false;
+			$locate =  $_SERVER['REQUEST_URI'];
+			$banned = array('formulario');
+
+			foreach($banned as $key => $val):
+				if(strpos($locate,$val)){
+					$is_banned = true;
+				}
+			endforeach;
+
+			return $is_banned;
+		}
+
 	}
 
  ?>

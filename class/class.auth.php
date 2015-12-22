@@ -38,8 +38,8 @@
 		public static function check(){
 			self::start();
 
-			if(empty($_SESSION["MM_Username"])):
-				@header('location: '.LOGIN_DIR);
+			if(empty($_SESSION["MM_IdUsuario"])):
+				@header('location: /');
 				exit();
 			endif;
 		}
@@ -188,56 +188,61 @@
 			
 		}
 
-		public function limpiarCagadaDeLucho(){
-			$format = array();
-			$ids = array();
-			$all = "SELECT * FROM usuarios";
-			$sel = $this->query($all)->fetchAll();
+		public static function formHasEmptyParams($collection = null){
 
-			
+			if(is_null($collection)){
+				$collection = Auth::User();
+			}
 
-			foreach($sel as $key => $val):
-				$item = array();
-				foreach($val as $itemkey => $itemval):
+			$hasEmptyParams =  false;
+
+			$exceptions = array(
+				'idUsuario',
+				'idempresa',
+				'tipocliente2015',
+				'vendedor',
+				'tipocliente',
+				'idUsuario',
+				'like_promotion',
+				'like_promotion_activity',
+				'sellers',
+				'llamado1',
+				'llamado2',
+				'llamado3',
+				'llamado4',
+				'llamado5',
+				'resultado',
+				'observaciones',
+				'vigencia_credito',
+				'entrykey',
+				'gold',
+				'puntos_asignados',
+				'dblCredito',
+				'dblAsignado',
+				'dblConsumido',
+				'estadocivil',
+				'other_activity',
+				'other_activity',
+				'strCargo',
+				'vendedores',
+				'form'
+				);
+
+
+			foreach ($collection as $key => $value) {
+				if(in_array($key, $exceptions)){
+					unset($collection->{$key});
+				}
+			}
+
+			foreach ($collection as $key => $value) {
+				if($value == "" || is_null($value)){
 					
-					if(!in_array($val->idUsuario,$ids)):
-						$ids[] 			= $val->idUsuario;
-					endif;
-					
-					if($itemkey != 'idUsuario'):
-						$item[$itemkey] = trim($itemval); 
-					endif;
-				
-				endforeach;
+					$hasEmptyParams = true;
+				}
+			}
 
-				array_push($format, $item);
-			endforeach;
-
-			$i = 0;
-			$querys = array();
-			foreach($format as $key => $val):
-				$sql = " UPDATE usuarios ";
-				$index = 0;
-
-				foreach($val as $itemkey => $itemval):
-					
-					if($index == 0):
-						$sql .= " SET ".$itemkey." = '".$itemval."'";
-						$index++;
-					else:
-						$sql .= " , ".$itemkey." = '".$itemval."'";
-					endif;
-			
-				endforeach;
-				$sql .= " WHERE idUsuario = ".$ids[$i];
-				$i++;
-				$querys[] = $sql;
-			endforeach;
-
-
-			foreach($querys as $key => $val):
-				$this->query($val);
-			endforeach;
+			return $hasEmptyParams;
 		}
 
 		public function defineUser($user){

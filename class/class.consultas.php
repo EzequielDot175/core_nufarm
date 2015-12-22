@@ -54,6 +54,7 @@
 			return $sel->fetch();
 		}
 
+
 		public function getAdmin(){
 			$consultas = array();
 			$sel = $this->query(self::CONSULTA_ALL)->fetchAll();

@@ -38,13 +38,25 @@
 			$this->limit = $limit;
 			$this->offset = $offset;
 
-			$sel = $this->prepare(self::USUARIO_ALL);
-			$sel->bindParam(':lim', $limit, PDO::PARAM_INT);
-			$sel->bindParam(':off', $offset, PDO::PARAM_INT);
-			$sel->execute();
+
+
+				$sel = $this->prepare(self::USUARIO_ALL);
+				$sel->bindParam(':lim', $limit, PDO::PARAM_INT);
+				$sel->bindParam(':off', $offset, PDO::PARAM_INT);
+				$sel->execute();
 
 			return $sel->fetchAll(); 
 			
+		}
+		public function getAllNotLimit(){
+			return $this->query(self::USUARIO_ALL_NOT_LIMIT)->fetchAll();
+		}
+
+		public function getAllBySeller($id){
+			$sel = $this->prepare(self::USUARIO_ALL_BY_SELLER);
+			$sel->bindParam(':id', $id, PDO::PARAM_STR);
+			$sel->execute();
+			return $sel->fetchAll();
 		}
 
 		public function byId($id){
@@ -54,42 +66,63 @@
 			return $sel->fetchAll();
 		}
 
+		public function getByMail($mail = ""){
+			$sel = $this->prepare(self::USUARIO_GET_ID_BYMAIL);
+			$sel->bindParam(':mail',$mail,PDO::PARAM_STR);
+			$sel->execute();
+			$result = $sel->fetch();
+			return $result;
+		}
+
 		private static function formatBirthDay($collection){
 
 			if(!empty($collection['cumpleanos'])):
 				preg_match('/([0-9].*\/[0-9].*\/[0-9].*[0-9])/', $collection['cumpleanos'],$matches);
 				$date = array_pop($matches);
 				$data = str_replace('/', '-', $date);
+
 				try {
+					$parse = date_parse($data);
+
+					if(count($parse['errors']) > 0 ){
+						return null;
+					}
 					$newDate = new DateTime($data);
 					$newDate = $newDate->format('Y-m-d');
 					return $newDate;
 				} catch (Exception $e) {
-					return '';
+					return null;
 				}
 			endif;
 			
 		}
 
+		public function changeFormValue($id){
+			$upd = $this->prepare(self::USUARIO_EDIT_FORM_VALUE);
+			$upd->bindParam(':id', $id, PDO::PARAM_INT);
+			$upd->execute();
+			return ($upd->rowCount() > 0 ? true : false);
+		}
+
+
 		public function edit($collection){
-			if(isset($collection['cumpleanos'])):
+			// if(isset($collection['cumpleanos'])):
 			
-			$collection['cumpleanos'] = self::formatBirthDay($collection);
-			
-			endif;
+			// $collection['cumpleanos'] = self::formatBirthDay($collection);
+			// endif;
 
 
 			$query = "UPDATE usuarios ";
 			$i     = 0; 
 			foreach($collection as $key => $val):
-				if($val != ""):
+				// if($val != ""):
 					if($i == 0):
 						$query .= "SET ".$key." = '".$val."'";
 						$i++;
 					else:
 						$query .= ",".$key." = '".$val."'";
 					endif;
-				endif;
+				// endif;
 			endforeach;
 			$query .= " WHERE idUsuario = :id";
 
@@ -98,12 +131,7 @@
 			$upd = $this->prepare($query);
 			$upd->bindParam(':id', $id, PDO::PARAM_INT);
 		
-			try {
-				$upd->execute();
-			} catch (Exception $e) {
-				$this->error = "Error al actualizar el usuario";
-			}
-			return ($upd->rowCount() > 0 ? true : false);
+			return $upd->execute();
 		}
 
 		/**
@@ -118,8 +146,9 @@
 			$upd->bindParam(':other_activity', $data['other_activity'], PDO::PARAM_STR);
 			$upd->bindParam(':deport_pref', $data['deport_pref'], PDO::PARAM_STR);
 			$upd->bindParam(':id', $id, PDO::PARAM_STR);
-			$upd->execute();
-			print_r($upd->rowCount());
+			// $upd->execute();
+
+			echo ($upd->execute() ? 'true' : 'false');
 		}
 
 		public function editAuthPassword($password){
