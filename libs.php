@@ -15,6 +15,7 @@
 	require_once(APP_DIR.'/mail/PHPMailerAutoload.php');
 	require_once(APP_DIR.'/excel/PHPExcel.php');
 	require_once(APP_DIR.'/interface/DBInterface.php');
+	require_once(APP_DIR.'/pdo/debug.db.php');
 	require_once(APP_DIR.'/pdo/DB.constant.php');
 	require_once(APP_DIR.'/traits/facade.php');
 	require_once(APP_DIR.'/traits/session.php');
